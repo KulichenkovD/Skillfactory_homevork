@@ -1,52 +1,57 @@
-import json
-import requests
-from Config import exchanges
-from Config import TOKEN_API
+import telebot
+from extensions import APIException, Convertor
+from Config import TOKEN, exchanges
+import traceback
 
-class APIException(Exception):
-    pass
+# bot name is 'Ferst_my_supper_Bot'
+bot = telebot.TeleBot(TOKEN)
 
 
-class Convertor:
-    @staticmethod
-    def get_price(base, sym, amount):
-        try:
-            base_key = exchanges[base]
-            sym_key2 = base_key
-        except KeyError:
-            raise APIException(f"Currency {base} not found!")
-        try:
-            sym_key = exchanges[sym]
-        except KeyError:
-            raise APIException(f"Currency {sym} not found!")
-        if base_key == sym_key:
-            raise APIException(f'Unable to transfer identical currencies {base}!')
-        try:
-            amount = float(amount)
-        except ValueError:
-            raise APIException(f'Failed to process quantity {amount}!')
-# if your API plan allows you to convert endpoint -
-# convert any amount from one currency to another
-# and  using real-time exchange rates
-# use the following api setting
-        # r = requests.get(f"http://api.exchangeratesapi.io/v1/convert"
-        #          f"?access_key=TOKEN_API"
-        #          f"&from=base_key"
-        #          f"&to=sym_key"
-        #          f"&amount=amount_sum")
-# if free api
-        r = requests.get(f"http://api.exchangeratesapi.io/latest"
-                         f"?access_key={TOKEN_API}")
-        resp = json.loads(r.content)
-        sym = resp['rates'][sym_key]
-        base = resp['rates'][sym_key2]
-# free api
-        new_price = sym / base * amount
-        # resp = json.loads(r.content)
-        # new_price = resp['rates'][sym_key] * amount  # paid api
-        new_price = round(new_price, 3)
-        # print(new_price)
-        message = f"the price 1 {sym_key2} is {round(sym / base,3)} {sym_key} \n \
-the conversion amount is {new_price} {sym_key}"
+@bot.message_handler(commands=['start'])
+def start(message: telebot.types.Message):
+    text = "Hello! \n \
+This is a bot for which you can find out the exchange rate \n \
+and calculate the amount in the currency you need! \n \
+If you want to start, give the command    /start \n \
+If you need a hint    /help"
+    bot.send_message(message.chat.id, text)
 
-        return message
+
+@bot.message_handler(commands=['help'])
+def start(message: telebot.types.Message):
+    text = "To get started,  \n \
+enter the currency you want to transfer from ___ \n \
+the currency you want to convert to ___.  \n \
+and <amount of transferred>  \n \
+To see the list of available currencies: /values"
+    bot.send_message(message.chat.id, text)
+
+
+@bot.message_handler(commands=['values'])
+def values(message: telebot.types.Message):
+    text = 'Available currencies:'
+    for i in exchanges.keys():
+        text = '\n'.join((text, i))
+    bot.reply_to(message, text)
+
+
+@bot.message_handler(content_types=['text', ])
+def converter(message: telebot.types.Message):
+    values = message.text.split(' ')
+    try:
+        if len(values) != 3:
+            raise APIException('Invalid number of parameters!')
+
+        amount, base, sym = values
+        answer = Convertor.get_price(amount, base, sym)
+    except APIException as e:
+        bot.reply_to(message, f"Command error:\n{e}")
+    except Exception as e:
+        traceback.print_tb(e.__traceback__)
+        bot.reply_to(message, f"Unknown error:\n{e}")
+    else:
+        bot.send_message(message.chat.id, answer)
+        #bot.reply_to(message, answer)
+
+
+bot.polling()
