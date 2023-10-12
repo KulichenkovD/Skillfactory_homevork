@@ -1,0 +1,17 @@
+<html>
+    <head>
+        <title> Post board</title>
+    </head>
+    <body>
+        <div>
+            <h1><a href="/">Post board</a></h1>
+        </div>
+        <div>
+            <button>
+                <a href="{% url 'new_post'%}"> add news </a>
+            </button>
+        </div>
+        {% block content %}
+        {% endblock %}
+    </body>
+</html>
