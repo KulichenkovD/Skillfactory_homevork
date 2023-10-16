@@ -20,3 +20,4 @@ def complete_news(oid):
     new = news.objects.get(pk = oid)
     new.complete = True
     new.save()
+
