@@ -25,3 +25,4 @@ urlpatterns = [
          #include('allauth.urls')),
     path('accounts/', include('Accounts.urls')),
 ]
+
