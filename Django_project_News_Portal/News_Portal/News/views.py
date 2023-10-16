@@ -57,3 +57,4 @@ class PostChoices(generic.ListView):
 #     model = Author
 #     template_name = 'author_edit.html'
 
+
