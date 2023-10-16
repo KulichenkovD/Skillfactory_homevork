@@ -9,3 +9,4 @@
 Хорошего дня!
 {% endblocktrans %}{% endautoescape %}
 {% endblock %}
+
