@@ -27,3 +27,4 @@ class CustomSignupForm(SignupForm):
         common_users = Group.objects.get(name="common users")
         user.groups.add(common_users)
         return user
+
