@@ -11,3 +11,4 @@ class PostFilter(FilterSet):
             'article_title' : ['icontains'],
             'rating' : ['gt'],
         }
+
