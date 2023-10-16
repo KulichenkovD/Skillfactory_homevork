@@ -120,3 +120,4 @@ class New(models.Model):
 
     def __str__(self):
         return '{}'.format(self.article_title)
+
